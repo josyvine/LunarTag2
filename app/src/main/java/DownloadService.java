@@ -18,6 +18,8 @@ import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -29,7 +31,10 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -128,7 +133,6 @@ public class DownloadService extends Service {
                     out = socket.getOutputStream();
                     PrintWriter writer = new PrintWriter(out, true);
                     
-                    // Send HTTP GET request with Range header for resuming
                     writer.println("GET / HTTP/1.1");
                     writer.println("Host: " + host);
                     writer.println("Range: bytes=" + bytesDownloaded + "-");
@@ -136,12 +140,9 @@ public class DownloadService extends Service {
 
                     in = new BufferedInputStream(socket.getInputStream());
                     
-                    // Simple HTTP header parsing
                     String line;
                     long contentLength = -1;
-                    boolean isChunked = false;
                     
-                    // Read headers line by line
                     while ((line = readLine(in)) != null && !line.isEmpty()) {
                         String lowerLine = line.toLowerCase();
                         if (lowerLine.startsWith("content-length:")) {
@@ -153,7 +154,6 @@ public class DownloadService extends Service {
                          throw new IOException("Server did not provide Content-Length header.");
                     }
 
-                    // Append to file
                     fos = new FileOutputStream(tempCloakedFile, true);
                     byte[] buffer = new byte[8192];
                     int bytesRead;
@@ -169,10 +169,8 @@ public class DownloadService extends Service {
 
                 } catch (IOException e) {
                     Log.w(TAG, "Connection lost, will retry... " + e.getMessage());
-                    // Clean up for this attempt
                     try { if (socket != null) socket.close(); } catch (IOException ignored) {}
                     try { if (fos != null) fos.close(); } catch (IOException ignored) {}
-                    // Wait before retrying
                     Thread.sleep(5000); 
                 }
             }
@@ -250,7 +248,6 @@ public class DownloadService extends Service {
                         }
                     }
                 } else {
-                    // Document deleted by sender or cleanup function
                     isCancelled = true;
                     if (downloadThread != null) {
                         downloadThread.interrupt();
@@ -286,6 +283,19 @@ public class DownloadService extends Service {
         if (tempCloakedFile != null && tempCloakedFile.exists()) {
             tempCloakedFile.delete();
         }
+
+        // --- THIS IS THE UPDATE ---
+        // Client-side cleanup: Attempt to delete the Firestore document.
+        if (dropRequestId != null) {
+            db.collection("drop_requests").document(dropRequestId).delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "Drop request document successfully deleted by receiver.");
+                    }
+                });
+        }
+        
         stopForeground(true);
     }
     
