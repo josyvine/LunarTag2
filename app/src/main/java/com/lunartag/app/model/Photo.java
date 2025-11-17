@@ -1,17 +1,22 @@
 package com.lunartag.app.model;
 
-import com.google.firebase.firestore.ServerTimestamp;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 import java.util.Date;
 
 /**
- * A simple data model class (POJO) to represent a photo record.
- * This object structure will be used to save and retrieve data from the Firestore 'photos' collection.
+ * A data model class that represents a photo record in the local Room database.
+ * This object is saved locally on the device for every captured photo.
  */
+@Entity(tableName = "photos")
 public class Photo {
 
+    @PrimaryKey(autoGenerate = true)
+    public long id;
+
     private String filePath;
-    private Date assignedTimestamp;
-    private Date captureTimestampReal;
+    private long assignedTimestamp; // Stored as long (milliseconds) for Room
+    private long captureTimestampReal; // Stored as long (milliseconds) for Room
     private double lat;
     private double lon;
     private double accuracyMeters;
@@ -20,16 +25,19 @@ public class Photo {
     private String shiftEnd;
     private String watermarkName;
     private String companyName;
-    private Date sendScheduledAt;
+    private long sendScheduledAt; // Stored as long (milliseconds) for Room
     private String status; // e.g., "PENDING", "SENT", "FAILED"
-
-    @ServerTimestamp
-    private Date createdAt;
-
-    // A no-argument constructor is required for Firestore data mapping
-    public Photo() {}
+    private long createdAt; // Stored as long (milliseconds) for Room
 
     // --- Getters and Setters for all fields ---
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
 
     public String getFilePath() {
         return filePath;
@@ -39,19 +47,19 @@ public class Photo {
         this.filePath = filePath;
     }
 
-    public Date getAssignedTimestamp() {
+    public long getAssignedTimestamp() {
         return assignedTimestamp;
     }
 
-    public void setAssignedTimestamp(Date assignedTimestamp) {
+    public void setAssignedTimestamp(long assignedTimestamp) {
         this.assignedTimestamp = assignedTimestamp;
     }
 
-    public Date getCaptureTimestampReal() {
+    public long getCaptureTimestampReal() {
         return captureTimestampReal;
     }
 
-    public void setCaptureTimestampReal(Date captureTimestampReal) {
+    public void setCaptureTimestampReal(long captureTimestampReal) {
         this.captureTimestampReal = captureTimestampReal;
     }
 
@@ -119,11 +127,11 @@ public class Photo {
         this.companyName = companyName;
     }
 
-    public Date getSendScheduledAt() {
+    public long getSendScheduledAt() {
         return sendScheduledAt;
     }
 
-    public void setSendScheduledAt(Date sendScheduledAt) {
+    public void setSendScheduledAt(long sendScheduledAt) {
         this.sendScheduledAt = sendScheduledAt;
     }
 
@@ -135,11 +143,11 @@ public class Photo {
         this.status = status;
     }
 
-    public Date getCreatedAt() {
+    public long getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Date createdAt) {
+    public void setCreatedAt(long createdAt) {
         this.createdAt = createdAt;
     }
-          }
+}
