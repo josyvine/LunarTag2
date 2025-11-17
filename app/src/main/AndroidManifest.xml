@@ -44,12 +44,6 @@
             android:exported="false"
             android:windowSoftInputMode="adjustPan" />
 
-        <!-- The activity for user sign-in -->
-        <activity
-            android:name=".LoginActivity"
-            android:label="Sign In"
-            android:exported="false" />
-
         <!-- The Service for sending scheduled images -->
         <service
             android:name=".services.SendService"
