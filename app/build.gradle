@@ -59,8 +59,8 @@ dependencies {
     // Firebase Bill of Materials (BoM)
     implementation platform('com.google.firebase:firebase-bom:33.1.1')
 
-    // Firebase Cloud Messaging (FCM) - FOR THE REMOTE FEATURE TOGGLE ONLY
-    implementation 'com.google.firebase:firebase-messaging'
+    // Firebase Remote Config - REPLACES FCM FOR FEATURE TOGGLES
+    implementation 'com.google.firebase:firebase-config'
 
     // Google Play Services for Location
     implementation 'com.google.android.gms:play-services-location:21.2.0'
