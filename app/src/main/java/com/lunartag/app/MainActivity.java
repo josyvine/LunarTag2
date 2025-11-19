@@ -15,6 +15,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
 import com.lunartag.app.databinding.ActivityMainBinding;
+import com.lunartag.app.firebase.RemoteConfigManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +45,10 @@ public class MainActivity extends AppCompatActivity {
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        // NEW: Trigger the Remote Config fetch immediately when the app starts.
+        // This replaces the passive FCM listener with an active check.
+        RemoteConfigManager.fetchRemoteConfig(this);
 
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.nav_host_fragment_activity_main);
